@@ -1006,30 +1006,49 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
         return putVal(key, value, false);
     }
 
-    /** Implementation for put and putIfAbsent */
+    /** put和putIfAbsent的实现 */
+    // final方法保证不会被重写
     final V putVal(K key, V value, boolean onlyIfAbsent) {
+        //如果key或者value为空抛出空指针
         if (key == null || value == null) throw new NullPointerException();
+        //计算hash值
         int hash = spread(key.hashCode());
         int binCount = 0;
+        //死循环执行
         for (Node<K,V>[] tab = table;;) {
-            Node<K,V> f; int n, i, fh;
+            //table中要被操作的node
+            Node<K,V> f;
+            int n, i,
+            fh;//节点的hash
+            //如果table为空,则初始化table 懒加载
             if (tab == null || (n = tab.length) == 0)
                 tab = initTable();
+            //如果这里找到指定的下标的node为空
             else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
+                //通过CAS直接插入
                 if (casTabAt(tab, i, null,
                              new Node<K,V>(hash, key, value, null)))
-                    break;                   // no lock when adding to empty bin
+                    break;
+                // 添加到空时无锁
             }
+            //如果发生hash冲突,且hash为-1,则说明此刻正在扩容,这将帮助扩容
             else if ((fh = f.hash) == MOVED)
                 tab = helpTransfer(tab, f);
+            //如果发生hash冲突,且hash不为-1
             else {
                 V oldVal = null;
+                //同步node节点,防止造成循环链表
                 synchronized (f) {
+                    //如果被操作的节点没有发生改变
                     if (tabAt(tab, i) == f) {
+                        //并且hash大于等于0
                         if (fh >= 0) {
+                            //链表长度为1
                             binCount = 1;
+                            //死循环操作node链表
                             for (Node<K,V> e = f;; ++binCount) {
                                 K ek;
+                                //如果key已经存在,则替换原有的value
                                 if (e.hash == hash &&
                                     ((ek = e.key) == key ||
                                      (ek != null && key.equals(ek)))) {
@@ -1039,6 +1058,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                                     break;
                                 }
                                 Node<K,V> pred = e;
+                                //如果key不存在,则往链表尾部新增
                                 if ((e = e.next) == null) {
                                     pred.next = new Node<K,V>(hash, key,
                                                               value, null);
@@ -1046,6 +1066,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                                 }
                             }
                         }
+                        //如果是树,则往树中添加节点
                         else if (f instanceof TreeBin) {
                             Node<K,V> p;
                             binCount = 2;
@@ -1059,14 +1080,18 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                     }
                 }
                 if (binCount != 0) {
+                    //如果链表长度大于等于8
                     if (binCount >= TREEIFY_THRESHOLD)
+                        //转换成红黑树
                         treeifyBin(tab, i);
+                    //如果原始值不为null,返回原始值
                     if (oldVal != null)
                         return oldVal;
                     break;
                 }
             }
         }
+        //查看是否需要扩容
         addCount(1L, binCount);
         return null;
     }
