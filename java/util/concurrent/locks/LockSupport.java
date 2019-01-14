@@ -118,10 +118,11 @@ import sun.misc.Unsafe;
  * }}</pre>
  */
 public class LockSupport {
-    private LockSupport() {} // Cannot be instantiated.
+    private LockSupport() {}
+    //无法被外部实例化
 
     private static void setBlocker(Thread t, Object arg) {
-        // Even though volatile, hotspot doesn't need a write barrier here.
+        // 即使易变，热点也不需要写屏障.
         UNSAFE.putObject(t, parkBlockerOffset, arg);
     }
 

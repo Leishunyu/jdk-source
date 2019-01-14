@@ -105,29 +105,28 @@ import java.util.Collection;
  */
 public class ReentrantLock implements Lock, java.io.Serializable {
     private static final long serialVersionUID = 7373984872572414699L;
-    /** Synchronizer providing all implementation mechanics */
+    /** 同步器提供所有实现机制 */
     private final Sync sync;
 
     /**
-     * Base of synchronization control for this lock. Subclassed
-     * into fair and nonfair versions below. Uses AQS state to
-     * represent the number of holds on the lock.
+     *此锁的同步控制基础。将*转换为下面的公平和非公平版本。使用AQS状态*表示锁定的保持数.
      */
     abstract static class Sync extends AbstractQueuedSynchronizer {
         private static final long serialVersionUID = -5179523762034025860L;
 
         /**
-         * Performs {@link Lock#lock}. The main reason for subclassing
-         * is to allow fast path for nonfair version.
+         *执行{@link Lock＃lock}。子类化的主要原因是允许非公平版本的快速路径
          */
         abstract void lock();
 
         /**
-         * Performs non-fair tryLock.  tryAcquire is implemented in
-         * subclasses, but both need nonfair try for trylock method.
+         * 执行非公平的tryLock
+         * tryAcquire在子类中实现，
+         * 但两者都需要tryLock方法的非公平尝试
          */
         final boolean nonfairTryAcquire(int acquires) {
             final Thread current = Thread.currentThread();
+            //获取当前状态 类似volatile
             int c = getState();
             if (c == 0) {
                 if (compareAndSetState(0, acquires)) {
@@ -159,8 +158,8 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         }
 
         protected final boolean isHeldExclusively() {
-            // While we must in general read state before owner,
-            // we don't need to do so to check if current thread is owner
+            // 虽然我们必须在所有者之前阅读状态,
+            // 我们不需要这样做来检查当前线程是否是所有者
             return getExclusiveOwnerThread() == Thread.currentThread();
         }
 
@@ -193,14 +192,14 @@ public class ReentrantLock implements Lock, java.io.Serializable {
     }
 
     /**
-     * Sync object for non-fair locks
+     * 同步对象以进行非公平锁定
      */
     static final class NonfairSync extends Sync {
         private static final long serialVersionUID = 7316153563782823691L;
 
         /**
-         * Performs lock.  Try immediate barge, backing up to normal
-         * acquire on failure.
+         * 执行锁定.  Try immediate barge, backing up to normal
+          acquire on failure.
          */
         final void lock() {
             if (compareAndSetState(0, 1))
