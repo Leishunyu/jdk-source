@@ -635,11 +635,13 @@ public abstract class AbstractQueuedSynchronizer
          * to clear in anticipation of signalling.  It is OK if this
          * fails or if status is changed by waiting thread.
          */
+        //这里，node一般为当前线程所在的结点。
         // 获取node结点的等待状态
         int ws = node.waitStatus;
         if (ws < 0)
             // 状态值小于0，为SIGNAL -1 或 CONDITION -2 或 PROPAGATE -3
             // 比较并且设置结点等待状态，设置为0
+            // 置零当前线程所在的结点状态，允许失败。
             compareAndSetWaitStatus(node, ws, 0);
 
         /*
@@ -648,7 +650,7 @@ public abstract class AbstractQueuedSynchronizer
          * traverse backwards from tail to find the actual
          * non-cancelled successor.
          */
-        // 获取node节点的下一个节点
+        // 找到下一个需要唤醒的结点s
         Node s = node.next;
         // 下一个结点为空或者下一个节点的等待状态大于0，即为CANCELLED
         if (s == null || s.waitStatus > 0) {
@@ -656,11 +658,13 @@ public abstract class AbstractQueuedSynchronizer
             // 从尾结点开始从后往前开始遍历
             for (Node t = tail; t != null && t != node; t = t.prev)
                 // 找到等待状态小于等于0的结点，找到最前的状态小于等于0的结点
+                // 即有效节点
                 if (t.waitStatus <= 0)
                     s = t;
-                    // 保存结点
+                    // s值为队列中最前面的没有被放弃的节点
         }
         if (s != null)
+            //如果s不为空 唤起
             LockSupport.unpark(s.thread);
     }
 
@@ -1124,6 +1128,8 @@ public abstract class AbstractQueuedSynchronizer
      *         correctly.
      * @throws UnsupportedOperationException if exclusive mode is not supported
      */
+    //根据tryRelease()的返回值来判断该线程是否已经完成释放掉资源了！所以自定义同步器在设计tryRelease()的时候要明确这一点！！
+    //如果已经彻底释放资源(state=0)，要返回true，否则返回false
     protected boolean tryRelease(int arg) {
         throw new UnsupportedOperationException();
     }
@@ -1288,9 +1294,13 @@ public abstract class AbstractQueuedSynchronizer
      * @return the value returned from {@link #tryRelease}
      */
     public final boolean release(int arg) {
+        //尝试释放锁
         if (tryRelease(arg)) {
+            //找到头结点
             Node h = head;
+            //如果头不等于空并且等待状态不为0
             if (h != null && h.waitStatus != 0)
+                //唤醒等待队列里面的下一个线程
                 unparkSuccessor(h);
             return true;
         }
