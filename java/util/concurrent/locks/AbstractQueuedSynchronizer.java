@@ -1550,10 +1550,10 @@ public abstract class AbstractQueuedSynchronizer
      * @since 1.7
      */
     public final boolean hasQueuedPredecessors() {
-        // The correctness of this depends on head being initialized
-        // before tail and on head.next being accurate if the current
-        // thread is first in queue.
-        Node t = tail; // Read fields in reverse initialization order
+        // 这种正确性取决于头被初始化
+        // 在尾部和头部之前。如果是当前的话，则是准确的
+        // 线程在队列中排在第一位
+        Node t = tail; // 以反向初始化顺序读取字段
         Node h = head;
         Node s;
         return h != t &&
