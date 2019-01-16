@@ -90,7 +90,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      */
     private static final long serialVersionUID = -817911632652898426L;
 
-    /** The queued items */
+    /** 数组存储数据 */
     final Object[] items;
 
     /** items index for next take, poll, peek or remove */
@@ -99,7 +99,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
     /** items index for next put, offer, or add */
     int putIndex;
 
-    /** Number of elements in the queue */
+    /** 队列大小 */
     int count;
 
     /*
@@ -107,19 +107,17 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      * found in any textbook.
      */
 
-    /** Main lock guarding all access */
+    /** 可重入锁 */
     final ReentrantLock lock;
 
-    /** Condition for waiting takes */
+    /** take操作的等待队列 */
     private final Condition notEmpty;
 
-    /** Condition for waiting puts */
+    /** put操作的等待队列 */
     private final Condition notFull;
 
     /**
-     * Shared state for currently active iterators, or null if there
-     * are known not to be any.  Allows queue operations to update
-     * iterator state.
+     * 当前活动迭代器的共享状态，如果已知不存在，则返回null。允许队列操作更新迭代器状态.
      */
     transient Itrs itrs = null;
 
@@ -133,7 +131,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
     }
 
     /**
-     * Returns item at index i.
+     * 返回指定下标对象.
      */
     @SuppressWarnings("unchecked")
     final E itemAt(int i) {
@@ -152,7 +150,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
 
     /**
      * Inserts element at current put position, advances, and signals.
-     * Call only when holding lock.
+      Call only when holding lock.
      */
     private void enqueue(E x) {
         // assert lock.getHoldCount() == 1;

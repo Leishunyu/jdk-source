@@ -212,6 +212,12 @@ import java.util.Collection;
  * @since 1.5
  * @author Doug Lea
  */
+
+/**
+ * 写锁与写锁之间互斥
+ * 同一个线程中的写锁会先获取读锁在释放,保证数据一致性,避免其他线程有写锁导致读到的数据不准确,读没有CAS操作
+ * 读锁后面有写锁,写锁后面的读锁会排队
+ */
 public class ReentrantReadWriteLock
         implements ReadWriteLock, java.io.Serializable {
     private static final long serialVersionUID = -6992448646407690164L;
