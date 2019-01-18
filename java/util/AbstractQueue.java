@@ -91,6 +91,7 @@ public abstract class AbstractQueue<E>
      * @throws IllegalArgumentException if some property of this element
      *         prevents it from being added to this queue
      */
+    //这是一个模板方法，只定义add入队算法骨架，成功时返回true，失败时抛出
     public boolean add(E e) {
         if (offer(e))
             return true;

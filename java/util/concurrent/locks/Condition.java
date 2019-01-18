@@ -180,7 +180,7 @@ public interface Condition {
 
     /**
      * Causes the current thread to wait until it is signalled or
-     * {@linkplain Thread#interrupt interrupted}.
+     {@linkplain Thread#interrupt interrupted}.
      *
      * <p>The lock associated with this {@code Condition} is atomically
      * released and the current thread becomes disabled for thread scheduling

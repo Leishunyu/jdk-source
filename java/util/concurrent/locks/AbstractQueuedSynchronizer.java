@@ -2097,17 +2097,21 @@ public abstract class AbstractQueuedSynchronizer
                 throw new InterruptedException();
             // 在wait队列上添加一个结点
             Node node = addConditionWaiter();
+            // 释放锁，返回同步状态
             int savedState = fullyRelease(node);
             int interruptMode = 0;
+            //循环判断当前节点是否在同步队列中
             while (!isOnSyncQueue(node)) {
                 LockSupport.park(this);
                 // 检查结点等待时的中断类型
                 if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
                     break;
             }
+            //在跳出了循环，即被signal唤醒后重新加入了同步队列后，开始重新竞争锁
             if (acquireQueued(node, savedState) && interruptMode != THROW_IE)
                 interruptMode = REINTERRUPT;
             if (node.nextWaiter != null) // 如果取消清理
+                //如果节点从等待状态转换为在同步队列中，并且也已经获得了锁，此时将断开此节点后面的等待节点
                 unlinkCancelledWaiters();
             if (interruptMode != 0)
                 reportInterruptAfterWait(interruptMode);

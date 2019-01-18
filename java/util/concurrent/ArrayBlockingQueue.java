@@ -93,10 +93,10 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
     /** 数组存储数据 */
     final Object[] items;
 
-    /** items index for next take, poll, peek or remove */
+    /** 下一个拍摄，轮询，查看或删除的项目索引 */
     int takeIndex;
 
-    /** items index for next put, offer, or add */
+    /** 下一个put，offer或add的items索引 */
     int putIndex;
 
     /** 队列大小 */
@@ -160,6 +160,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         if (++putIndex == items.length)
             putIndex = 0;
         count++;
+        //唤醒非空等待队列中的线程
         notEmpty.signal();
     }
 
@@ -251,8 +252,11 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         if (capacity <= 0)
             throw new IllegalArgumentException();
         this.items = new Object[capacity];
+        //初始化ReentrantLock重入锁，出队入队拥有这同一个锁
         lock = new ReentrantLock(fair);
+        //初始化非空等待队列
         notEmpty = lock.newCondition();
+        //初始化非满等待队列
         notFull =  lock.newCondition();
     }
 
@@ -277,17 +281,20 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         this(capacity, fair);
 
         final ReentrantLock lock = this.lock;
-        lock.lock(); // Lock only for visibility, not mutual exclusion
+        // 锁定仅用于可见性，而不是互斥
+        lock.lock();
         try {
             int i = 0;
             try {
                 for (E e : c) {
                     checkNotNull(e);
+                    //将集合添加进数组构成的队列中
                     items[i++] = e;
                 }
             } catch (ArrayIndexOutOfBoundsException ex) {
                 throw new IllegalArgumentException();
             }
+            //队列中的实际数据数量 
             count = i;
             putIndex = (i == capacity) ? 0 : i;
         } finally {
@@ -311,22 +318,24 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
     }
 
     /**
-     * Inserts the specified element at the tail of this queue if it is
-     * possible to do so immediately without exceeding the queue's capacity,
-     * returning {@code true} upon success and {@code false} if this queue
-     * is full.  This method is generally preferable to method {@link #add},
-     * which can fail to insert an element only by throwing an exception.
+     * 如果可以在不超出队列容量的情况下立即执行此操作，则将指定元素插入此队列的尾部，
+     * 成功时返回{@code true}，如果此队列已满，
+     * 则返回{@code false}。此方法通常优于方法{@link #add}，它只能通过抛出异常来插入元素.
      *
      * @throws NullPointerException if the specified element is null
      */
     public boolean offer(E e) {
+        //检查入队元素是否为空 
         checkNotNull(e);
         final ReentrantLock lock = this.lock;
+        //获得锁，线程安全 
         lock.lock();
         try {
+            //队列满时，不阻塞等待，直接返回false 
             if (count == items.length)
                 return false;
             else {
+                //队列未满，直接插入
                 enqueue(e);
                 return true;
             }
