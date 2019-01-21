@@ -514,15 +514,19 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      * @return {@code true} if this queue changed as a result of the call
      */
     public boolean remove(Object o) {
-        if (o == null) return false;
+        if (o == null) return false;//判空
         final Object[] items = this.items;
         final ReentrantLock lock = this.lock;
+        //获得锁
         lock.lock();
         try {
+            //如果队列不为空
             if (count > 0) {
                 final int putIndex = this.putIndex;
                 int i = takeIndex;
+                // 遍历元素
                 do {
+                    // 两个对象相等的话
                     if (o.equals(items[i])) {
                         removeAt(i);
                         return true;
@@ -1057,7 +1061,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         /** Last element returned; null if none or not detached. */
         private E lastItem;
 
-        /** Index of lastItem, NONE if none, REMOVED if removed elsewhere */
+        /** lastItem的索引，如果没有则为NONE，如果在别处删除则删除 */
         private int lastRet;
 
         /** Previous value of takeIndex, or DETACHED when detached */
@@ -1140,8 +1144,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         }
 
         /**
-         * Adjusts indices to incorporate all dequeues since the last
-         * operation on this iterator.  Call only from iterating thread.
+         * 调整索引以包含自此迭代器上次操作以来的所有出列。仅从迭代线程调用.
          */
         private void incorporateDequeues() {
             // assert lock.getHoldCount() == 1;
@@ -1267,10 +1270,11 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         public void remove() {
             // assert lock.getHoldCount() == 0;
             final ReentrantLock lock = ArrayBlockingQueue.this.lock;
+            // 加锁，保证调用remove方法的时候只有1个线程
             lock.lock();
             try {
                 if (!isDetached())
-                    incorporateDequeues(); // might update lastRet or detach
+                    incorporateDequeues(); // 可能会更新lastRet或分离
                 final int lastRet = this.lastRet;
                 this.lastRet = NONE;
                 if (lastRet >= 0) {
