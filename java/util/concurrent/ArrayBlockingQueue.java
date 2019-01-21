@@ -79,6 +79,11 @@ import java.util.Spliterator;
  * @author Doug Lea
  * @param <E> the type of elements held in this collection
  */
+
+/**
+ * 1.固定大小
+ * @param <E>
+ */
 public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         implements BlockingQueue<E>, java.io.Serializable {
 
@@ -154,12 +159,14 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      */
     private void enqueue(E x) {
         // assert lock.getHoldCount() == 1;
-        // assert items[putIndex] == null;
+        // assert items[putIndex] == null
+        //元素添加到数组里;
         final Object[] items = this.items;
         items[putIndex] = x;
+        //如果是最后一个 将putIndex设置为0
         if (++putIndex == items.length)
             putIndex = 0;
-        count++;
+        count++;//队列长度+1
         //唤醒非空等待队列中的线程
         notEmpty.signal();
     }
@@ -352,15 +359,17 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      * @throws NullPointerException {@inheritDoc}
      */
     public void put(E e) throws InterruptedException {
-        checkNotNull(e);
+        checkNotNull(e);//不允许插入为空
         final ReentrantLock lock = this.lock;
+        //获得锁,只要线程不是中断的
         lock.lockInterruptibly();
         try {
+            // 如果队列满了，阻塞当前线程，并加入到条件对象notFull的等待队列里
             while (count == items.length)
-                notFull.await();
+                notFull.await();// 线程阻塞并被挂起，同时释放锁
             enqueue(e);
         } finally {
-            lock.unlock();
+            lock.unlock();// 释放锁，让其他线程可以调用put方法
         }
     }
 
@@ -394,22 +403,29 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
 
     public E poll() {
         final ReentrantLock lock = this.lock;
+        // 加锁，保证调用poll方法的时候只有1个线程
         lock.lock();
         try {
+            // 如果队列里没元素了，返回null，否则调用extract方法
             return (count == 0) ? null : dequeue();
         } finally {
+            // 释放锁，让其他线程可以调用poll方法
             lock.unlock();
         }
     }
 
     public E take() throws InterruptedException {
         final ReentrantLock lock = this.lock;
+        // 加锁，保证调用take方法的时候只有1个线程
         lock.lockInterruptibly();
         try {
+            // 如果队列空，阻塞当前线程，并加入到条件对象notEmpty的等待队列里
             while (count == 0)
+                // 线程阻塞并被挂起，同时释放锁
                 notEmpty.await();
             return dequeue();
         } finally {
+            // 释放锁，让其他线程可以调用take方法
             lock.unlock();
         }
     }
