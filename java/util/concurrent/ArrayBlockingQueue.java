@@ -192,18 +192,20 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
     }
 
     /**
-     * Deletes item at array index removeIndex.
-     * Utility for remove(Object) and iterator.remove.
-     * Call only when holding lock.
+     *删除数组索引removeIndex处的项。
+     删除（Object）和iterator.remove的实用程序。
+     只有握住锁定才能打电话.
      */
     void removeAt(final int removeIndex) {
         // assert lock.getHoldCount() == 1;
         // assert items[removeIndex] != null;
         // assert removeIndex >= 0 && removeIndex < items.length;
         final Object[] items = this.items;
+        //如果删除的下标等于要进行删除的下标
         if (removeIndex == takeIndex) {
-            // removing front item; just advance
+            // 删除前项;只是前进
             items[takeIndex] = null;
+            //如果下标是最后一个
             if (++takeIndex == items.length)
                 takeIndex = 0;
             count--;
@@ -212,13 +214,18 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         } else {
             // an "interior" remove
 
-            // slide over all others up through putIndex.
+            // 通过putIndex滑过所有其他人。
             final int putIndex = this.putIndex;
+            //循环
             for (int i = removeIndex;;) {
+                //获取下一个下标
                 int next = i + 1;
+                //如果下一个下边的值为队列长度
                 if (next == items.length)
                     next = 0;
+                //如果下一个下标的值不等于下一个要put的下标
                 if (next != putIndex) {
+                    //相当于移位
                     items[i] = items[next];
                     i = next;
                 } else {
@@ -231,7 +238,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             if (itrs != null)
                 itrs.removedAt(removeIndex);
         }
-        notFull.signal();
+        notFull.signal(); // 使用条件对象notFull通知，比如使用put方法放数据的时候队列已满，被阻塞。这个时候消费了一条数据，队列没满了，就需要调用signal进行通知
     }
 
     /**
@@ -486,6 +493,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      * because it may be the case that another thread is about to
      * insert or remove an element.
      */
+    //返回剩余多少容量
     public int remainingCapacity() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -533,7 +541,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                     }
                     if (++i == items.length)
                         i = 0;
-                } while (i != putIndex);
+                } while (i != putIndex);//如果i不等于要put的下标
             }
             return false;
         } finally {

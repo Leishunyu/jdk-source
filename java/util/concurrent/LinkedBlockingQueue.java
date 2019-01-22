@@ -123,25 +123,25 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
         E item;
 
         /**
-         * One of:
-         * - the real successor Node
-         * - this Node, meaning the successor is head.next
-         * - null, meaning there is no successor (this is the last node)
+         * 之一:
+         * - 真正的继承者节点
+         * - 这个节点，意思是后继者是head.next
+         * - null，表示没有后继者（这是最后一个节点）
          */
         Node<E> next;
 
         Node(E x) { item = x; }
     }
 
-    /** The capacity bound, or Integer.MAX_VALUE if none */
+    /** 容量限制，如果没有，则为Integer.MAX_VALUE */
     private final int capacity;
 
-    /** Current number of elements */
+    /** 当前的元素数量 */
     private final AtomicInteger count = new AtomicInteger();
 
     /**
-     * Head of linked list.
-     * Invariant: head.item == null
+     * 链表负责人。
+     * 不变量：head.item == null
      */
     transient Node<E> head;
 
@@ -276,7 +276,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     public LinkedBlockingQueue(Collection<? extends E> c) {
         this(Integer.MAX_VALUE);
         final ReentrantLock putLock = this.putLock;
-        putLock.lock(); // Never contended, but necessary for visibility
+        putLock.lock(); // 从来没有争辩，但对于能见度是必要的
         try {
             int n = 0;
             for (E e : c) {
