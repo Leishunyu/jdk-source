@@ -550,9 +550,9 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
      * Unlinks interior Node p with predecessor trail.
      */
     void unlink(Node<E> p, Node<E> trail) {
-        // assert isFullyLocked();
-        // p.next is not changed, to allow iterators that are
-        // traversing p to maintain their weak-consistency guarantee.
+        // 断言 isFullyLocked();
+        // p.next 没有改变，允许迭代器
+        // 遍历p以保持其弱一致性保证.
         p.item = null;
         trail.next = p.next;
         if (last == p)
@@ -574,13 +574,13 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
      */
     public boolean remove(Object o) {
         if (o == null) return false;
-        fullyLock();
+        fullyLock();    // remove操作要移动的位置不固定，2个锁都需要加锁
         try {
-            for (Node<E> trail = head, p = trail.next;
+            for (Node<E> trail = head, p = trail.next;  // 从链表头结点开始遍历
                  p != null;
-                 trail = p, p = p.next) {
-                if (o.equals(p.item)) {
-                    unlink(p, trail);
+                 trail = p, p = p.next) {// 判断是否找到对象
+                if (o.equals(p.item))
+                    unlink(p, trail);{ // 修改节点的链接信息，同时调用notFull的signal方法
                     return true;
                 }
             }
