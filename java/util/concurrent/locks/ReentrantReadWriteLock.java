@@ -675,15 +675,15 @@ public class ReentrantReadWriteLock
     static final class NonfairSync extends Sync {
         private static final long serialVersionUID = -8159625535654395037L;
         final boolean writerShouldBlock() {
-            return false; // writers can always barge
+            return false; // 写锁总是在前面
         }
         final boolean readerShouldBlock() {
-            /* As a heuristic to avoid indefinite writer starvation,
-             * block if the thread that momentarily appears to be head
-             * of queue, if one exists, is a waiting writer.  This is
-             * only a probabilistic effect since a new reader will not
-             * block if there is a waiting writer behind other enabled
-             * readers that have not yet drained from the queue.
+            /* 作为避免无限期写锁饥饿的方式，
+             如果线程暂时看起来是头部则阻止
+             队列中的队列，如果存在，则是等待的写锁。这是
+             只有一个概率效应，因为新的读锁不会
+             阻止，如果有其他启用后面的等待写锁
+             尚未从队列中排出的读锁。
              */
             return apparentlyFirstQueuedIsExclusive();
         }

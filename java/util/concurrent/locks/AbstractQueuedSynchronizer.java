@@ -1556,6 +1556,7 @@ public abstract class AbstractQueuedSynchronizer
         Node t = tail; // 以反向初始化顺序读取字段
         Node h = head;
         Node s;
+        //头节点不等于尾节点(等待线程超过1个) 并且 (头节点的下一个节点为空 或者 头节点的下一个节点的线程不是当前线程)
         return h != t &&
             ((s = h.next) == null || s.thread != Thread.currentThread());
     }

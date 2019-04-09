@@ -59,7 +59,7 @@ public abstract class AbstractOwnableSynchronizer
     protected AbstractOwnableSynchronizer() { }
 
     /**
-     * The current owner of exclusive mode synchronization.
+     * 独占模式同步的当前所有者。
      */
     private transient Thread exclusiveOwnerThread;
 
