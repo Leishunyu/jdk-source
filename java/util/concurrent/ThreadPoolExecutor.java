@@ -382,21 +382,21 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     private static final int COUNT_BITS = Integer.SIZE - 3;
     private static final int CAPACITY   = (1 << COUNT_BITS) - 1;
 
-    // runState is stored in the high-order bits
+    // runState存储在高位中
     private static final int RUNNING    = -1 << COUNT_BITS;
     private static final int SHUTDOWN   =  0 << COUNT_BITS;
     private static final int STOP       =  1 << COUNT_BITS;
     private static final int TIDYING    =  2 << COUNT_BITS;
     private static final int TERMINATED =  3 << COUNT_BITS;
 
-    // Packing and unpacking ctl
+    // 包装和拆包ctl
     private static int runStateOf(int c)     { return c & ~CAPACITY; }
     private static int workerCountOf(int c)  { return c & CAPACITY; }
     private static int ctlOf(int rs, int wc) { return rs | wc; }
 
     /*
-     * Bit field accessors that don't require unpacking ctl.
-     * These depend on the bit layout and on workerCount being never negative.
+     * 不需要解压缩ctl的位字段访问器
+     * 这些取决于位布局，而workerCount永远不会消极.
      */
 
     private static boolean runStateLessThan(int c, int s) {
@@ -412,24 +412,22 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     }
 
     /**
-     * Attempts to CAS-increment the workerCount field of ctl.
+     * 尝试CAS增加ctl的workerCount字段.
      */
     private boolean compareAndIncrementWorkerCount(int expect) {
         return ctl.compareAndSet(expect, expect + 1);
     }
 
     /**
-     * Attempts to CAS-decrement the workerCount field of ctl.
+     * 尝试CAS减少ctl的workerCount字段.
      */
     private boolean compareAndDecrementWorkerCount(int expect) {
         return ctl.compareAndSet(expect, expect - 1);
     }
 
     /**
-     * Decrements the workerCount field of ctl. This is called only on
-     * abrupt termination of a thread (see processWorkerExit). Other
-     * decrements are performed within getTask.
-     */
+     *减少ctl的workerCount字段。只有在线程突然终止时才会调用此方法（请参阅processWorkerExit）。其他减量在getTask中执行。
+     **/
     private void decrementWorkerCount() {
         do {} while (! compareAndDecrementWorkerCount(ctl.get()));
     }
@@ -469,7 +467,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     private final HashSet<Worker> workers = new HashSet<Worker>();
 
     /**
-     * Wait condition to support awaitTermination
+     * 等待条件以支持awaitTermination
      */
     private final Condition termination = mainLock.newCondition();
 

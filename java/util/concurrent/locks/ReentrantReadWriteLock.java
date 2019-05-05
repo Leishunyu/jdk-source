@@ -352,8 +352,7 @@ public class ReentrantReadWriteLock
          */
 
         /**
-         * Returns true if the current thread, when trying to acquire
-         * the read lock, and otherwise eligible to do so, should block
+         * Returns true if the current thread, when trying to acquire the read lock, and otherwise eligible to do so, should block
          * because of policy for overtaking other waiting threads.
          */
         abstract boolean readerShouldBlock();
@@ -386,10 +385,10 @@ public class ReentrantReadWriteLock
         protected final boolean tryAcquire(int acquires) {
             /*
              * Walkthrough:
-             * 1. If read count nonzero or write count nonzero
-             *    and owner is a different thread, fail.
-             * 2. If count would saturate, fail. (This can only
-             *    happen if count is already nonzero.)
+             * 1. 如果读取计数非零或写入计数非零
+             *      和所有者是一个不同的线程，失败。
+             * 2. 如果计数会饱和，那就失败了。 （这只能
+             *      如果计数已经非零，则会发生。）
              * 3. Otherwise, this thread is eligible for lock if
              *    it is either a reentrant acquire or
              *    queue policy allows it. If so, update state
