@@ -905,7 +905,7 @@ public abstract class AbstractQueuedSynchronizer
     }
 
     /**
-     * Acquires in exclusive interruptible mode.
+     * 以独占可中断模式获取。
      * @param arg the acquire argument
      */
     private void doAcquireInterruptibly(int arg)
@@ -913,6 +913,7 @@ public abstract class AbstractQueuedSynchronizer
         final Node node = addWaiter(Node.EXCLUSIVE);
         boolean failed = true;
         try {
+            //这里通过自旋尝试获得锁,获得锁则返回,如果没有获得锁一直自旋,如果在获取锁失败后判断是否需要挂起,挂起的同事检查现场是否中断
             for (;;) {
                 final Node p = node.predecessor();
                 if (p == head && tryAcquire(arg)) {
