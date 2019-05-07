@@ -278,8 +278,7 @@ public class CountDownLatch {
     }
 
     /**
-     * Decrements the count of the latch, releasing all waiting threads if
-     * the count reaches zero.
+     * Decrements the count of the latch, 如果计数达到零，则释放所有等待的线程。
      *
      * <p>If the current count is greater than zero then it is decremented.
      * If the new count is zero then all waiting threads are re-enabled for
